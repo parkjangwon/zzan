@@ -26,8 +26,8 @@ struct MenuContent: View {
 
         Divider()
 
-        SettingsLink {
-            Text("Settings…")
+        Button("Settings…") {
+            AppDelegate.shared?.openSettings()
         }
 
         Button("Quit Zzan") {

@@ -48,4 +48,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func showPanel() {
         panelController?.show()
     }
+
+    /// Opens the SwiftUI Settings scene.
+    ///
+    /// For an accessory (menu-bar) app, the standard mechanism creates the
+    /// Settings window but leaves it hidden, so we activate the app and then
+    /// explicitly bring the freshly-created window to the front.
+    func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.bringSettingsWindowToFront()
+        }
+    }
+
+    private func bringSettingsWindowToFront() {
+        // The Settings scene is hosted in a SwiftUI window that is neither the
+        // status-bar window nor our input panel.
+        for window in NSApp.windows {
+            if String(describing: type(of: window)) == "NSStatusBarWindow" { continue }
+            if window is KeyPanel { continue }
+            window.center()
+            window.makeKeyAndOrderFront(nil)
+            return
+        }
+    }
 }
