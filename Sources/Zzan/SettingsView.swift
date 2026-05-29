@@ -36,19 +36,33 @@ struct KeyRecorderField: View {
     @Binding var combo: KeyCombo
 
     @State private var isRecording = false
-    @State private var monitor: Any?
     @State private var errorMessage: String?
 
     var body: some View {
         HStack {
             Text("Shortcut")
             Spacer()
-            Button(action: toggle) {
-                Text(isRecording ? "Press keys…" : combo.displayString)
-                    .frame(minWidth: 110)
-                    .monospaced()
+            if isRecording {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .strokeBorder(Color.accentColor, lineWidth: 2)
+                    Text("Press keys…")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(minWidth: 130, minHeight: 24)
+                // Transparent capture view sits on top and owns the keyboard.
+                .overlay(ShortcutRecorderView(onCapture: handle, onCancel: { isRecording = false }))
+            } else {
+                Button {
+                    errorMessage = nil
+                    isRecording = true
+                } label: {
+                    Text(combo.displayString)
+                        .frame(minWidth: 110)
+                        .monospaced()
+                }
+                .buttonStyle(.bordered)
             }
-            .buttonStyle(.bordered)
         }
         if let errorMessage {
             Text(errorMessage)
@@ -57,45 +71,69 @@ struct KeyRecorderField: View {
         }
     }
 
-    private func toggle() {
-        isRecording ? stop() : start()
-    }
-
-    private func start() {
-        isRecording = true
-        errorMessage = nil
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            handle(event)
-            return nil // consume the event so it doesn't trigger anything else
-        }
-    }
-
-    private func handle(_ event: NSEvent) {
-        if Int(event.keyCode) == 53 { // Escape cancels recording
-            stop()
-            return
-        }
-
-        let modifiers = event.modifierFlags
-            .intersection(.deviceIndependentFlagsMask)
-            .intersection([.command, .option, .control, .shift])
-
-        let candidate = KeyCombo(keyCode: UInt32(event.keyCode), modifiers: modifiers.rawValue)
-
+    private func handle(_ candidate: KeyCombo) {
+        errorMessage = nil // clear any stale message from a previous attempt
         if let reason = ShortcutValidator.reject(candidate) {
             errorMessage = reason
             return // keep recording so the user can try another combo
         }
-
         combo = candidate
-        stop()
+        isRecording = false
+    }
+}
+
+/// A focusable, otherwise-invisible NSView that captures the next key press
+/// (including ⌘-based combos via `performKeyEquivalent`).
+private struct ShortcutRecorderView: NSViewRepresentable {
+    var onCapture: (KeyCombo) -> Void
+    var onCancel: () -> Void
+
+    func makeNSView(context: Context) -> RecorderNSView {
+        let view = RecorderNSView()
+        view.onCapture = onCapture
+        view.onCancel = onCancel
+        // The Settings window of a menu-bar (accessory) app may not be active;
+        // force activation and grab first responder so key events arrive.
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            if let window = view.window {
+                window.makeKeyAndOrderFront(nil)
+                window.makeFirstResponder(view)
+            }
+        }
+        return view
     }
 
-    private func stop() {
-        isRecording = false
-        if let monitor {
-            NSEvent.removeMonitor(monitor)
-            self.monitor = nil
+    func updateNSView(_ view: RecorderNSView, context: Context) {
+        view.onCapture = onCapture
+        view.onCancel = onCancel
+    }
+}
+
+private final class RecorderNSView: NSView {
+    var onCapture: ((KeyCombo) -> Void)?
+    var onCancel: (() -> Void)?
+
+    override var acceptsFirstResponder: Bool { true }
+
+    override func keyDown(with event: NSEvent) {
+        capture(event)
+    }
+
+    // ⌘-based combinations are delivered as key equivalents, not keyDown.
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        capture(event)
+        return true
+    }
+
+    private func capture(_ event: NSEvent) {
+        if Int(event.keyCode) == 53 { // Escape cancels recording
+            onCancel?()
+            return
         }
+        let modifiers = event.modifierFlags
+            .intersection(.deviceIndependentFlagsMask)
+            .intersection([.command, .option, .control, .shift])
+        onCapture?(KeyCombo(keyCode: UInt32(event.keyCode), modifiers: modifiers.rawValue))
     }
 }

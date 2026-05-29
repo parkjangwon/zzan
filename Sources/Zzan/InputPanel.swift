@@ -39,7 +39,9 @@ final class InputPanelController {
         panel.hasShadow = true
         panel.isMovableByWindowBackground = false
         panel.hidesOnDeactivate = false
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .moveToActiveSpace]
+        // Note: .canJoinAllSpaces and .moveToActiveSpace are mutually exclusive
+        // and combining them throws on recent macOS. Show on every space instead.
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         let root = InputView(model: model, onClose: { [weak self] in self?.hide() })
             .environmentObject(AppSettings.shared)
