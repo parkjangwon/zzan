@@ -5,6 +5,9 @@ build/
 *.xcodeproj
 .swiftpm/
 
+# Source assets (converted copies live in Assets.xcassets)
+zzan.png
+
 # AI / Dev tools
 .codegraph/
 .cursor/
