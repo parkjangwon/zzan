@@ -1,58 +1,44 @@
 # Zzan
 
-A minimal menu-bar utility for vibe coding: press a global shortcut, type a
-prompt in your own language (usually Korean), hit Enter, and the English
-translation lands on your clipboard — ready to paste. Translation runs through
-the built-in macOS **Translation framework**, so there is no API key and no
-per-call cost.
+A macOS menu-bar utility for **translating text to English in one keystroke**.
 
-## How it works
+Press the shortcut, type in any language, hit **Enter** — the English translation lands on your clipboard.
 
-1. Press the shortcut (default `⌃⌥⌘T`) anywhere.
-2. A small input panel appears, focused and ready.
-3. Type your text.
-   - **Enter** → translate to English, copy to clipboard, close.
-   - **Shift+Enter** → newline.
-   - **Esc** → close without translating.
-4. Focus returns to your previous app — just paste.
+Built on the native macOS Translation framework. No API key, no cost, no round-trip.
 
-## Features
+![macOS 15+](https://img.shields.io/badge/macOS-15%2B-black) ![Swift](https://img.shields.io/badge/Swift-6-orange)
 
-- Menu bar only (no Dock icon).
-- Global shortcut, rebindable in Settings with basic conflict validation.
-- Launch at login (via `SMAppService`).
-- Source language: auto-detect (default) or a fixed language. Target is always English.
-- Recent 10 translations in the menu; click one to re-copy.
+## Usage
 
-## Requirements
+| Key | Action |
+|-----|--------|
+| Global shortcut (default `⌃⌥⌘T`) | Open the input panel |
+| **Enter** | Translate → copy to clipboard → close |
+| **Shift+Enter** | Insert a newline |
+| **Esc** | Close without translating |
 
-- macOS 15 or later (the Translation framework's programmatic API).
-- The first translation for a language may prompt macOS to download the
-  on-device language model.
+After closing, focus returns to your previous app — just paste.
 
-## Build & run
+## Install
+
+Download `Zzan.dmg` from [Releases](https://github.com/parkjangwon/zzan/releases), open it, and drag **Zzan.app** to `/Applications`.
+
+On first launch macOS may ask to download the on-device language model for your language. After that, translation works offline.
+
+## Build from source
+
+Requires Xcode 16+ / macOS 15+.
 
 ```bash
+git clone https://github.com/parkjangwon/zzan
+cd zzan
 ./build.sh
 open build/Zzan.app
 ```
 
-`build.sh` compiles the SwiftPM target, assembles `build/Zzan.app`, and ad-hoc
-signs it.
+## Settings
 
-For day-to-day development without bundling:
-
-```bash
-swift run
-```
-
-(Some features — Launch at login in particular — only behave correctly from the
-signed `.app` bundle.)
-
-## Notes on shortcut conflicts
-
-macOS provides no public API to enumerate every globally-registered shortcut, so
-conflict detection is best-effort: combinations without a `⌘`/`⌥`/`⌃` modifier
-are rejected, and a blocklist guards the well-known system shortcuts
-(Spotlight, app switcher, Quit, Copy/Paste, etc.). Two apps can still legally
-register the same hotkey — both simply receive it.
+- **Shortcut** — rebind the global hotkey (conflict-checked)
+- **Source language** — auto-detect (default) or pin to a specific language
+- **Launch at login** — start Zzan automatically on login
+- **History** — recent 10 translations in the menu bar, click to re-copy
