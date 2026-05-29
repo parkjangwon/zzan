@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: macos-15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: swift test
+
+      - name: Build app bundle
+        run: ./build.sh
+
+      - name: Package DMG
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="${GITHUB_REF_NAME#v}"
+          app_name="zzan"
+          app_path="build/${app_name}.app"
+          dmg_path="build/${app_name}-${version}.dmg"
+          stage="$(mktemp -d "${TMPDIR:-/tmp}/zzan-release.XXXXXX")"
+
+          cleanup() {
+            rm -rf "$stage"
+          }
+          trap cleanup EXIT
+
+          if [[ ! -d "$app_path" ]]; then
+            printf 'error: expected app bundle not found: %s\n' "$app_path" >&2
+            exit 1
+          fi
+
+          cp -R "$app_path" "${stage}/"
+          ln -s /Applications "${stage}/Applications"
+
+          hdiutil create \
+            -volname "$app_name" \
+            -srcfolder "$stage" \
+            -ov \
+            -format UDZO \
+            "$dmg_path"
+
+          printf 'dmg_path=%s\n' "$dmg_path" >>"$GITHUB_OUTPUT"
+          printf 'dmg_name=%s\n' "$(basename "$dmg_path")" >>"$GITHUB_OUTPUT"
+
+      - name: Write release notes
+        shell: bash
+        run: |
+          cat >release-notes.md <<NOTES
+          ## Install
+          Download \`${{ steps.package.outputs.dmg_name }}\`, open it, drag **zzan.app** to Applications.
+
+          ## Requirements
+          macOS 15 or later. On first use, macOS may download the on-device language model for your language.
+
+          ## What's new
+          - Initial release
+          - Global hotkey opens a minimal input panel
+          - Type in any language -> Enter -> English translation copied to clipboard
+          - Shift+Enter for newline, Esc to cancel
+          - Source language: auto-detect or fixed
+          - History: last 10 translations in the menu bar
+          - Launch at login option
+          NOTES
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            "${{ steps.package.outputs.dmg_path }}" \
+            --title "zzan ${GITHUB_REF_NAME}" \
+            --notes-file release-notes.md
