@@ -1,5 +1,7 @@
 # zzan
 
+<img width="2814" height="1536" alt="image" src="https://github.com/user-attachments/assets/2e087871-5a8f-4995-a810-1016321e1d79" />
+
 A macOS menu-bar utility for **translating text to English in one keystroke**.
 
 Press the shortcut, type in any language, hit **Enter** — the English translation lands on your clipboard.
