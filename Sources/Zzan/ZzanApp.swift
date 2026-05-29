@@ -6,7 +6,7 @@ struct ZzanApp: App {
 
     var body: some Scene {
         // The only persistent UI is the menu bar item.
-        MenuBarExtra("Zzan", systemImage: "character.bubble") {
+        MenuBarExtra("zzan", systemImage: "character.bubble") {
             MenuContent()
                 .environmentObject(HistoryStore.shared)
                 .environmentObject(AppSettings.shared)

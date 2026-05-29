@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 VERSION="${1:-1.0.0}"
-APP_NAME="Zzan"
+APP_NAME="zzan"
 APP_PATH="build/${APP_NAME}.app"
 DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 DMG_PATH="build/${DMG_NAME}"
@@ -37,7 +37,7 @@ git push origin "v${VERSION}"
 
 gh release create "v${VERSION}" \
   "$DMG_PATH" \
-  --title "Zzan v${VERSION}" \
+  --title "zzan v${VERSION}" \
   --notes "## Install
 Download \`${DMG_NAME}\`, open it, drag **Zzan.app** to Applications.
 

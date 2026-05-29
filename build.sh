@@ -4,7 +4,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-APP_NAME="Zzan"
+APP_NAME="zzan"
 CONFIG="release"
 BUILD_BIN=".build/${CONFIG}/${APP_NAME}"
 APP_DIR="build/${APP_NAME}.app"

@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Zzan</string>
+    <string>zzan</string>
     <key>CFBundleDisplayName</key>
-    <string>Zzan</string>
+    <string>zzan</string>
     <key>CFBundleExecutable</key>
-    <string>Zzan</string>
+    <string>zzan</string>
     <key>CFBundleIdentifier</key>
     <string>com.crinity.zzan</string>
     <key>CFBundlePackageType</key>
@@ -23,6 +23,6 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Zzan</string>
+    <string>zzan</string>
 </dict>
 </plist>
