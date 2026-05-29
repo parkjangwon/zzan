@@ -49,28 +49,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelController?.show()
     }
 
-    /// Opens the SwiftUI Settings scene.
+    /// Activates the app and brings the SwiftUI Settings window to the front.
     ///
-    /// For an accessory (menu-bar) app, the standard mechanism creates the
-    /// Settings window but leaves it hidden, so we activate the app and then
-    /// explicitly bring the freshly-created window to the front.
-    func openSettings() {
+    /// The window itself is created by the SwiftUI `openSettings` environment
+    /// action (called from the menu). For an accessory (menu-bar) app that
+    /// window is created hidden, so we activate the app and order it front,
+    /// retrying for a few frames in case it isn't instantiated yet.
+    func revealSettingsWindow(attempt: Int = 0) {
         NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        DispatchQueue.main.async { [weak self] in
-            self?.bringSettingsWindowToFront()
-        }
-    }
-
-    private func bringSettingsWindowToFront() {
-        // The Settings scene is hosted in a SwiftUI window that is neither the
-        // status-bar window nor our input panel.
-        for window in NSApp.windows {
-            if String(describing: type(of: window)) == "NSStatusBarWindow" { continue }
-            if window is KeyPanel { continue }
+        if let window = settingsWindow() {
             window.center()
             window.makeKeyAndOrderFront(nil)
             return
+        }
+        // Fallback: if SwiftUI's openSettings() didn't create the window (it
+        // doesn't always propagate into a MenuBarExtra menu), trigger the
+        // responder-chain action once.
+        if attempt == 3 {
+            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        }
+        guard attempt < 12 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            self?.revealSettingsWindow(attempt: attempt + 1)
+        }
+    }
+
+    /// The Settings scene's window: neither the status-bar window nor our panel.
+    private func settingsWindow() -> NSWindow? {
+        NSApp.windows.first { window in
+            String(describing: type(of: window)) != "NSStatusBarWindow" && !(window is KeyPanel)
         }
     }
 }

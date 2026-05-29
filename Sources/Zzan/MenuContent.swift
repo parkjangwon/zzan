@@ -4,6 +4,7 @@ import SwiftUI
 struct MenuContent: View {
     @EnvironmentObject private var history: HistoryStore
     @EnvironmentObject private var settings: AppSettings
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         Button("New Translation  \(settings.hotKey.displayString)") {
@@ -27,7 +28,8 @@ struct MenuContent: View {
         Divider()
 
         Button("Settings…") {
-            AppDelegate.shared?.openSettings()
+            openSettings()
+            AppDelegate.shared?.revealSettingsWindow()
         }
 
         Button("Quit Zzan") {
