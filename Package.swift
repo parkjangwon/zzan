@@ -16,6 +16,11 @@ let package = Package(
                 // so use the Swift 5 concurrency model to avoid spurious errors.
                 .swiftLanguageMode(.v5)
             ]
+        ),
+        .testTarget(
+            name: "ZzanTests",
+            dependencies: ["Zzan"],
+            path: "Tests/ZzanTests"
         )
     ]
 )

@@ -88,13 +88,13 @@ struct InputView: View {
             ? nil
             : Locale.Language(identifier: settings.sourceLanguageCode)
 
-        // Setting the configuration (or invalidating an existing one) triggers
-        // the .translationTask closure to run.
-        if configuration == nil {
-            configuration = TranslationSession.Configuration(source: source, target: target)
-        } else {
-            configuration?.invalidate()
-        }
+        // Reuse the task trigger, but refresh the language pair every submit so
+        // Settings changes take effect without restarting the app.
+        var nextConfiguration = configuration ?? TranslationSession.Configuration()
+        nextConfiguration.source = source
+        nextConfiguration.target = target
+        nextConfiguration.invalidate()
+        configuration = nextConfiguration
     }
 
     private func runTranslation(using session: TranslationSession) async {

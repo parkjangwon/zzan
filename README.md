@@ -21,7 +21,7 @@ After closing, focus returns to your previous app — just paste.
 
 ## Install
 
-Download `zzan.dmg` from [Releases](https://github.com/parkjangwon/zzan/releases), open it, and drag **zzan.app** to `/Applications`.
+Download the latest `zzan-<version>.dmg` from [Releases](https://github.com/parkjangwon/zzan/releases), open it, and drag **zzan.app** to `/Applications`.
 
 On first launch macOS may ask to download the on-device language model for your language. After that, translation works offline.
 
@@ -34,6 +34,15 @@ git clone https://github.com/parkjangwon/zzan
 cd zzan
 ./build.sh
 open build/zzan.app
+```
+
+## Release
+
+Releases are published by GitHub Actions when a version tag is pushed:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 ## Settings
