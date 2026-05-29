@@ -1,4 +1,4 @@
-# Zzan
+# zzan
 
 A macOS menu-bar utility for **translating text to English in one keystroke**.
 
@@ -21,7 +21,7 @@ After closing, focus returns to your previous app — just paste.
 
 ## Install
 
-Download `Zzan.dmg` from [Releases](https://github.com/parkjangwon/zzan/releases), open it, and drag **Zzan.app** to `/Applications`.
+Download `zzan.dmg` from [Releases](https://github.com/parkjangwon/zzan/releases), open it, and drag **zzan.app** to `/Applications`.
 
 On first launch macOS may ask to download the on-device language model for your language. After that, translation works offline.
 
@@ -33,12 +33,12 @@ Requires Xcode 16+ / macOS 15+.
 git clone https://github.com/parkjangwon/zzan
 cd zzan
 ./build.sh
-open build/Zzan.app
+open build/zzan.app
 ```
 
 ## Settings
 
 - **Shortcut** — rebind the global hotkey (conflict-checked)
 - **Source language** — auto-detect (default) or pin to a specific language
-- **Launch at login** — start Zzan automatically on login
+- **Launch at login** — start zzan automatically on login
 - **History** — recent 10 translations in the menu bar, click to re-copy

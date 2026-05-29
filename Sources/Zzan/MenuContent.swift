@@ -32,7 +32,7 @@ struct MenuContent: View {
             AppDelegate.shared?.revealSettingsWindow()
         }
 
-        Button("Quit Zzan") {
+        Button("Quit zzan") {
             NSApplication.shared.terminate(nil)
         }
         .keyboardShortcut("q")
