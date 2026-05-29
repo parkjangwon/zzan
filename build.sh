@@ -24,6 +24,7 @@ require_command() {
 
 require_command swift
 require_command codesign
+require_command iconutil
 
 log "Compiling (${CONFIG})..."
 swift build -c "$CONFIG"
@@ -40,6 +41,23 @@ install -d "${APP_DIR}/Contents/MacOS" "${APP_DIR}/Contents/Resources"
 
 install -m 755 "$BUILD_BIN" "${APP_DIR}/Contents/MacOS/${APP_NAME}"
 cp "Resources/Info.plist" "${APP_DIR}/Contents/Info.plist"
+
+log "Building AppIcon.icns..."
+ICONSET="$(mktemp -d)/AppIcon.iconset"
+mkdir -p "$ICONSET"
+APPICONSET="Resources/Assets.xcassets/AppIcon.appiconset"
+cp "${APPICONSET}/icon_16x16.png"    "${ICONSET}/icon_16x16.png"
+cp "${APPICONSET}/icon_32x32.png"    "${ICONSET}/icon_16x16@2x.png"
+cp "${APPICONSET}/icon_32x32.png"    "${ICONSET}/icon_32x32.png"
+cp "${APPICONSET}/icon_64x64.png"    "${ICONSET}/icon_32x32@2x.png"
+cp "${APPICONSET}/icon_128x128.png"  "${ICONSET}/icon_128x128.png"
+cp "${APPICONSET}/icon_256x256.png"  "${ICONSET}/icon_128x128@2x.png"
+cp "${APPICONSET}/icon_256x256.png"  "${ICONSET}/icon_256x256.png"
+cp "${APPICONSET}/icon_512x512.png"  "${ICONSET}/icon_256x256@2x.png"
+cp "${APPICONSET}/icon_512x512.png"  "${ICONSET}/icon_512x512.png"
+cp "${APPICONSET}/icon_1024x1024.png" "${ICONSET}/icon_512x512@2x.png"
+iconutil -c icns "$ICONSET" -o "${APP_DIR}/Contents/Resources/AppIcon.icns"
+rm -rf "$(dirname "$ICONSET")"
 
 log "Ad-hoc signing..."
 codesign --force --deep --sign - "$APP_DIR"
